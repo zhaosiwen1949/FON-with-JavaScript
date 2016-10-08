@@ -1,0 +1,14 @@
+{
+  "name": "javascript_for_fon",
+  "version": "1.0.0",
+  "description": "使用JavaScript操作Neo4j数据库完成弹性光网络虚拟化资源分配的仿真",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "曹亚松",
+  "license": "ISC",
+  "dependencies": {
+    "node-neo4j": "^2.0.3"
+  }
+}
