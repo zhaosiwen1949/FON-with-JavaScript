@@ -5,4 +5,6 @@ var domain = 'localhost';
 var port = '7574';
 var url = 'http://'+username+':'+password+'@'+domain+':'+port;
 var db = new neo4j(url);
+var label = 'TEST_10_12'
 exports.db = db;
+exports.label = label;
