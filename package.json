@@ -9,6 +9,7 @@
   "author": "曹亚松",
   "license": "ISC",
   "dependencies": {
+    "co": "^4.6.0",
     "node-neo4j": "^2.0.3"
   }
 }
