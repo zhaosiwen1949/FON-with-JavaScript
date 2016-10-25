@@ -24,7 +24,7 @@ module.exports = {
             var node_graph = signal['sig_graph'];
             var node_num = node_list.length;
             var index_list;
-            var result_flag,log_err;
+            var node_flag,log_err;
 
             //读取仿真网络中剩余计算资源最大的节点
             //读取之后存入日志中，便于分配失败时进行恢复
@@ -85,24 +85,24 @@ module.exports = {
                 //需要发出分配失败的信号，并且回滚操作
                 if(available_compute_resource[index]<0){
                     ctx.node_mapping_rollback(occupied_compute_resource,available_compute_resource,node_mapping_log);     
-                    result_flag = false;
+                    node_flag = false;
                     break;
                 }else{
                     //修改仿真网络中节点资源
-                    //result_flag = yield change_node_resource(db,index,available_compute_resource[index]);
-                    result_flag = true;
+                    //node_flag = yield change_node_resource(db,index,available_compute_resource[index]);
+                    node_flag = true;
                 }
 
                 /*修改仿真网络中节点资源(此处需要单独构造一个函数)
                 var data = yield change_node_resource(db,index,available_compute_resource[index]);
                 if(data[0].index == index){
-                    result_flag = true;
+                    node_flag = true;
                 }else{
-                    result_flag = false;
+                    node_flag = false;
                 }*/
             }
             return {
-                result_flag:result_flag,
+                node_flag:node_flag,
                 index_list:index_list,
                 node_graph:node_graph,
                 duration:duration
