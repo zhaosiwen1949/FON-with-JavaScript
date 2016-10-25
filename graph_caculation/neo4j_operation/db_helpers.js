@@ -1,4 +1,5 @@
-function array_stuff(arr,len,content){
+function array_stuff(len,content){
+    var arr = new Array();
     for(var i=0;i<len;i++){
         arr.push(content);
     }

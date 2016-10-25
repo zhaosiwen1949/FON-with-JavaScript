@@ -6,7 +6,7 @@ module.exports = function(db,start_node_index,end_node_index,spectrum_resource){
         start_node_index:start_node_index,
         end_node_index:end_node_index,
         link_index:start_node_index+'-'+end_node_index,
-        available_spectrum_resource:array_stuff(new Array(),spectrum_resource,0)
+        available_spectrum_resource:array_stuff(spectrum_resource,0)
     },function(err,result){
         if(err) console.log(err);
         //console.log(result.data);
