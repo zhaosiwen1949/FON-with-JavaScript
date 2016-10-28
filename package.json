@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "co": "^4.6.0",
+    "ml-matrix": "^2.1.0",
     "node-neo4j": "^2.0.3"
   }
 }

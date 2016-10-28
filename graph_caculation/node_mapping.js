@@ -103,8 +103,8 @@ module.exports = {
             }
             return {
                 node_flag:node_flag,
-                index_list:index_list,
-                node_graph:node_graph,
+                index_list:[].concat(index_list),
+                node_graph:[].concat(node_graph),
                 duration:duration
             }
         }
