@@ -103,8 +103,8 @@ module.exports = {
             }
             return {
                 node_flag:node_flag,
-                index_list:index_list,
-                node_graph:node_graph,
+                index_list:[].concat(index_list),
+                node_graph:[].concat(node_graph),
                 duration:duration
             }
         }
@@ -115,7 +115,7 @@ module.exports = {
             reject(err);
         });
     });},
-    node_mapping_rollback:function(occupied_resource,available_resource,node_mapping_log){
+    node_mapping_rollback:function(occupied_compute_resource,available_compute_resource,node_mapping_log){
         if(node_mapping_log.length != 1) throw new Error('There exists a LOG ERR!');
         occupied_compute_resource = node_mapping_log[0].node_mapping_occupied_resource_list;
         available_compute_resource = node_mapping_log[0].node_mapping_available_resource_list;
