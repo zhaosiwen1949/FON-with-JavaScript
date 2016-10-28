@@ -1,5 +1,5 @@
-var test_node_mapping = require('./test_node_mapping');
-test_node_mapping().then(function(data){
+var single_mapping = require('../single_mapping');
+single_mapping().then(function(data){
     console.log(data);
 }).catch(function(err){
     console.log(err);

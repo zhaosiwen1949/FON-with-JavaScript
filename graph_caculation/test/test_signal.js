@@ -1,5 +1,5 @@
-var get_signal = require('./graph_promise/http_promise');
-var signal = require('./settings').signal;
+var get_signal = require('../graph_promise/http_promise');
+var signal = require('../settings').signal;
 
 var obj;
 

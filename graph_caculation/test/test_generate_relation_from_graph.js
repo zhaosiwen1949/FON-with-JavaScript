@@ -1,4 +1,4 @@
-var graph = require('./settings').graph;
+var graph = require('../settings').graph;
 var result = new Object();
 
 for(let i = 0;i<graph.length;i++){

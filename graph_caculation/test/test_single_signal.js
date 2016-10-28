@@ -1,5 +1,5 @@
-var get_signal = require('./graph_promise/http_promise');
-var signal = require('./settings').signal;
+var get_signal = require('../graph_promise/http_promise');
+var signal = require('../settings').signal;
 
 get_signal('POST','/get_signal',{signal_settings:signal})
     .then(function(data){

@@ -1,5 +1,5 @@
 var co = require('co');
-var test_node_mapping = require('./test_node_mapping');
+var single_mapping = require('./single_mapping');
 
 function* g(){
     var num = 1000;
@@ -8,7 +8,7 @@ function* g(){
     var result;
 
     for(let i=0;i<num;i++){
-        result = yield test_node_mapping(i+1);
+        result = yield single_mapping(i+1);
         if(result.signal_flag){
             signal_num++;
             if(result.result_flag){

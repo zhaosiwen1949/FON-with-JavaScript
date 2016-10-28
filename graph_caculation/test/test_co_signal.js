@@ -1,6 +1,6 @@
 var co = require('co');
-var get_signal = require('./graph_promise/http_promise');
-var signal = require('./settings').signal;
+var get_signal = require('../graph_promise/http_promise');
+var signal = require('../settings').signal;
 
 function * g_signal(){
     var num = 100,fails = 0,successes = 0,data,signals;
