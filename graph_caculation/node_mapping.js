@@ -1,4 +1,5 @@
 var co = require('co');
+var dcopy = require('deep-copy');
 var array_stuff = require('./neo4j_operation/db_helpers').array_stuff;
 var graph = require('./settings').graph;
 var compute_resource = require('./settings').compute_resource;
@@ -38,9 +39,9 @@ module.exports = {
             log_err = node_mapping_log.pop();
             if(log_err != undefined) throw new Error("There exists a LOG ERR! ");
             node_mapping_log.push({
-                node_mapping_index_list:[].concat(index_list),
-                node_mapping_occupied_resource_list:[].concat(occupied_compute_resource),
-                node_mapping_available_resource_list:[].concat(available_compute_resource)
+                node_mapping_index_list:dcopy(index_list),
+                node_mapping_occupied_resource_list:dcopy(occupied_compute_resource),
+                node_mapping_available_resource_list:dcopy(available_compute_resource)
             });
 
             /*构建辅助函数，帮助记录分配资源前的资源可用情况
@@ -79,12 +80,13 @@ module.exports = {
                     return preVal+ele.compute_resource
                 },0);
                 //更新可用资源总量
-                available_compute_resource[index] = available_compute_resource[index] - resource;
+                available_compute_resource[index] = compute_resource - resource;
 
                 //检查可用资源总量，若小于零，说明无法进行资源分配，
                 //需要发出分配失败的信号，并且回滚操作
                 if(available_compute_resource[index]<0){
-                    ctx.node_mapping_rollback(occupied_compute_resource,available_compute_resource,node_mapping_log);     
+                    //ctx.node_mapping_rollback(occupied_compute_resource,available_compute_resource,node_mapping_log);     
+                    ctx.node_mapping_rollback();     
                     node_flag = false;
                     break;
                 }else{
@@ -103,8 +105,8 @@ module.exports = {
             }
             return {
                 node_flag:node_flag,
-                index_list:[].concat(index_list),
-                node_graph:[].concat(node_graph),
+                index_list:dcopy(index_list),
+                node_graph:dcopy(node_graph),
                 duration:duration
             }
         }
@@ -115,10 +117,12 @@ module.exports = {
             reject(err);
         });
     });},
-    node_mapping_rollback:function(occupied_compute_resource,available_compute_resource,node_mapping_log){
+    //node_mapping_rollback:function(occupied_compute_resource,available_compute_resource,node_mapping_log){
+    node_mapping_rollback:function(){
         if(node_mapping_log.length != 1) throw new Error('There exists a LOG ERR!');
-        occupied_compute_resource = node_mapping_log[0].node_mapping_occupied_resource_list;
-        available_compute_resource = node_mapping_log[0].node_mapping_available_resource_list;
+        //console.log('回滚函数成功调用！！')
+        occupied_compute_resource = dcopy(node_mapping_log[0].node_mapping_occupied_resource_list);
+        available_compute_resource = dcopy(node_mapping_log[0].node_mapping_available_resource_list);
     },
     node_mapping_get_info:function(){
         return {

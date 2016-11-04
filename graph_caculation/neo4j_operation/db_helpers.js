@@ -1,9 +1,21 @@
 var Matrix = require('ml-matrix');
+var dcopy = require('deep-copy');
 
 function array_stuff(len,content){
     var arr = new Array();
-    for(var i=0;i<len;i++){
-        arr.push(content);
+    if(typeof(content) == 'object'){
+        for(var i=0;i<len;i++){
+            let stuff = dcopy(content);
+            arr.push(stuff);
+        }
+    }else if(typeof(content) == 'number'){
+        for(var i=0;i<len;i++){
+            arr.push(content);
+        }
+    }else{
+        for(var i=0;i<len;i++){
+            arr.push(content);
+        }
     }
     return arr;
 }

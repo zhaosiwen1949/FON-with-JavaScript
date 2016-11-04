@@ -1,4 +1,5 @@
 var co = require('co');
+var dcopy = require('deep-copy');
 
 var spectrum_resource = require('./settings').spectrum_resource;
 var find_shortest_paths = require('./neo4j_operation/find_shortest_paths');
@@ -24,7 +25,7 @@ function init_available_spectrum_resource(graph,content){
             let end = Math.max(graph[i][0],graph[i][j]);
             let index = start+'-'+end;
             if(result[index] == undefined){
-                result[index] = Object.assign({},content);
+                result[index] = dcopy(content);
             }
         }
     }
@@ -40,14 +41,14 @@ module.exports = {
         })
         */
         return new Promise(function(resolve,reject){
-            var break_flag,relation_flag,log_err;
+            var break_flag=false,relation_flag,log_err;
 
             function* g_relation_mapping(){
                 //分配资源之前，首先对之前的资源进行保存
                 relation_mapping_log.pop();
                 log_err = relation_mapping_log.pop();
                 if(log_err != undefined) throw new Error('There exists a RELATION LOG ERR!!!');
-                relation_mapping_log.push(Object.assign({},available_spectrum_resource));
+                relation_mapping_log.push(dcopy(available_spectrum_resource));
 
                 //根据index_list和node_graph对频谱资源进行分配
                 let len = node_graph.length;
@@ -71,7 +72,8 @@ module.exports = {
                                 let available_resource = new Array();
                                 for(let k=0;k<len;k++){
                                     let resource = paths_array[k].reduce(function(preVal,ele){
-                                        return ele.available_spectrum_resource+preVal;
+                                        let index = ele.index
+                                        return available_spectrum_resource[index].number+preVal;
                                     },0);
                                     available_resource.push(resource);
                                 }
@@ -117,6 +119,7 @@ module.exports = {
                                 let index = path[s].index;
                                 path_1DArray = path_1DArray.concat(available_spectrum_resource[index].list);
                             }
+                                path_1DArray = dcopy(path_1DArray);
 
                             //开始分配频谱资源
                             let result = spectrum_distribute_with_LFH(occupied_spectrum_resource,path_1DArray,path.length,spectrum_resource,time,duration);
@@ -128,7 +131,7 @@ module.exports = {
                                     //测试使用
                                     //console.log('t : '+t);
                                     //console.log('index : '+index);
-                                    available_spectrum_resource[index].list = [].concat(result.result_list[t]);
+                                    available_spectrum_resource[index].list = dcopy(result.result_list[t]);
                                     available_spectrum_resource[index].number = available_spectrum_resource[index].number - occupied_spectrum_resource;
                                     //console.log({index_num:available_spectrum_resource[index].number});
                                 }
@@ -136,7 +139,9 @@ module.exports = {
                             }else{
                                 //分配失败，回滚修改，跳出循环
                                 if(relation_mapping_log.length == 1){
-                                    available_spectrum_resource = Object.assign({},relation_mapping_log.pop());
+                                    //测试频谱分配使用
+                                    //console.log("频谱资源回滚！！");
+                                    available_spectrum_resource = dcopy(relation_mapping_log.pop());
                                 }else{
                                     throw new Error('There exists a RELATION LOG ERR!!!');
                                 }

@@ -1,5 +1,6 @@
 var Matrix = require('ml-matrix');
 var array_stuff = require('./neo4j_operation/db_helpers').array_stuff;
+var dcopy = require('deep-copy');
 
 function spectrum_distribute_with_LFH(occupied_num,resource_list,rows,columns,time,duration){
     //注意，reource_list是一维数组
@@ -22,7 +23,7 @@ function spectrum_distribute_with_LFH(occupied_num,resource_list,rows,columns,ti
         result_list = matrix.to2DArray();
     }
     return {
-        result_list:result_list,
+        result_list:dcopy(result_list),
         result_flag:result_flag
     }
 }

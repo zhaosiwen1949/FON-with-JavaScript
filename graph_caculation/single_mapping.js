@@ -1,4 +1,5 @@
 var co = require('co');
+var dcopy = require('deep-copy');
 var get_signal = require('./graph_promise/http_promise');
 var signal = require('./settings').signal;
 var db = require('./neo4j_operation/db_settings').db;
@@ -10,7 +11,9 @@ var change_relation_resource = require('./neo4j_operation/change_relation_resour
 module.exports = function(time){
     return new Promise(function(resolve,reject){
         function* g_node_map(){
-            var result_flag,signal_flag;
+            var result_flag=[],signal_flag=[];
+            //测试回滚使用
+            var node_ref=[],relation_ref=[];
             var data = yield get_signal('POST','/get_signal',{signal_settings:signal});
             var sig,sigs = data['signals'];
             if(sigs != false){
@@ -30,9 +33,9 @@ module.exports = function(time){
                             //若计算资源及频谱资源都分配成功，则更改节点
                             //首先需要读取目前计算及频谱资源分配情况
                             let node_info = node_mapping.node_mapping_get_info();
-                            let a_compute_res = [].concat(node_info.available_compute_resource);
+                            let a_compute_res = dcopy(node_info.available_compute_resource);
                             let relation_info = relation_mapping.relation_mapping_get_info();
-                            let a_spectrum_res = Object.assign({},relation_info.available_spectrum_resource_number);
+                            let a_spectrum_res = dcopy(relation_info.available_spectrum_resource_number);
                             //更新计算资源
                             for(let i = 0;i<index_list.length;i++){
                                 let index = index_list[i];
@@ -58,33 +61,66 @@ module.exports = function(time){
                                 }
                             }
                             //console.log('节点分配完成！');
-                            result_flag = true;
-                            signal_flag = true;
+                            result_flag.push(true);
+                            signal_flag.push(true);
+                            //测试回滚使用
+                            node_ref.push(dcopy(node_mapping.node_mapping_get_info()));
+                            relation_ref.push(dcopy(relation_mapping.relation_mapping_get_info()));
+                            //node_ref.push(Object.assign({},node_mapping.node_mapping_get_info()));
                         }else if(!relation_result.relation_flag){
                             //回滚节点计算资源（频谱资源已经回滚了）
-                            let node_info = node_mapping.node_mapping_get_info();
+                            /*let node_info = node_mapping.node_mapping_get_info();
                             let node_mapping_rollback = node_mapping.node_mapping_rollback;
                             let occupied_compute_resource = node_info.occupied_compute_resource;
                             let available_compute_resource = node_info.available_compute_resource;
                             let node_mapping_log = node_info.node_mapping_log;
-                            node_mapping_rollback(occupied_compute_resource,available_compute_resource,node_mapping_log);
-                            result_flag = false;
-                            signal_flag = true;
+                            node_mapping_rollback(occupied_compute_resource,available_compute_resource,node_mapping_log);*/
+                            node_mapping.node_mapping_rollback();
+                            result_flag.push(false);
+                            signal_flag.push(true);
+                            //测试回滚使用
+                            node_ref.push(dcopy(node_mapping.node_mapping_get_info()));
+                            relation_ref.push(dcopy(relation_mapping.relation_mapping_get_info()));
+                            /*node_ref.push(Object.assign({},{
+                                occupied_compute_resource:[].concat(node_mapping.node_mapping_get_info().occupied_compute_resource),
+                                available_compute_resource:[].concat(node_mapping.node_mapping_get_info().available_compute_resource),
+                                node_mapping_log:[].concat(node_mapping.node_mapping_get_info().node_mapping_log)
+                            }));*/
                         }
                     }else if(!node_result.node_flag){
                         //console.log('资源不足，已回滚！');
-                        result_flag = false;
-                        signal_flag = true;
+                        result_flag.push(false);
+                        signal_flag.push(true);
+                        //测试回滚使用
+                        node_ref.push(dcopy(node_mapping.node_mapping_get_info()));
+                        relation_ref.push(dcopy(relation_mapping.relation_mapping_get_info()));
+                        /*node_ref.push(Object.assign({},{
+                            occupied_compute_resource:[].concat(node_mapping.node_mapping_get_info().occupied_compute_resource),
+                            available_compute_resource:[].concat(node_mapping.node_mapping_get_info().available_compute_resource),
+                            node_mapping_log:[].concat(node_mapping.node_mapping_get_info().node_mapping_log)
+                        }));*/
                     }
                 }
             }else{
                 //console.log("没有信号到达~");
-                signal_flag = false;
-                result_flag = false;
+                signal_flag.push(false);
+                result_flag.push(false);
+                //测试回滚使用
+                node_ref.push(dcopy(node_mapping.node_mapping_get_info()));
+                relation_ref.push(dcopy(relation_mapping.relation_mapping_get_info()));
+                /*node_ref.push(Object.assign({},{
+                    occupied_compute_resource:[].concat(node_mapping.node_mapping_get_info().occupied_compute_resource),
+                    available_compute_resource:[].concat(node_mapping.node_mapping_get_info().available_compute_resource),
+                    node_mapping_log:[].concat(node_mapping.node_mapping_get_info().node_mapping_log)
+                }));*/
+                
             }
             return {
                 result_flag:result_flag,
-                signal_flag:signal_flag
+                signal_flag:signal_flag,
+                node_ref:node_ref,
+                relation_ref:relation_ref,
+                signals:sigs
             };
         }
 

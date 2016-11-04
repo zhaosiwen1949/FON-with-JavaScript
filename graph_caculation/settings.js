@@ -15,8 +15,8 @@ module.exports = {
     [13,6,8,12],
     [14,10,11]
     ],
-    compute_resource:50000,
-    spectrum_resource:25000,
+    compute_resource:500,
+    spectrum_resource:15,
     signal:{
         lamda:2,
         mu:35,

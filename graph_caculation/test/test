@@ -1,0 +1,2 @@
+#!/bin/bash
+node ../neo4j_operation/reset_resource.js && node test_single_mapping.js > test_result.txt 2>&1 
